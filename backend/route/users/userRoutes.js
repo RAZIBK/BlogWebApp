@@ -28,7 +28,7 @@ userRoutes.put('/unfollow',authmidlewarres,unFollowUserctrl);
 userRoutes.put('/block-user/:id',authmidlewarres,blockUserCtrl);
 userRoutes.put('/unblock-user/:id',authmidlewarres,unblockUserCtrl)
 userRoutes.get("/profile/:id", authmidlewarres, UserProfileCtrl);
-userRoutes.put("/:id", authmidlewarres, updateUserCtrl);
+userRoutes.put("/", authmidlewarres, updateUserCtrl);
 userRoutes.get("/:id", authmidlewarres, fetchUserDetailsCtrl);
 
 

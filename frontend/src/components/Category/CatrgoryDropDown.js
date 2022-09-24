@@ -14,7 +14,7 @@ function CatrgoryDropDown(props) {
 
   const AllCategory = categoryList?.map((category) => {
     return {
-      value: category?._id,
+      _id: category?._id,
       label: category?.title,
     };
   }); 

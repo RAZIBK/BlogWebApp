@@ -4,7 +4,7 @@ const validateMongodbId = require("../../utils/validateMongodbID");
 
 
 
-const categoryCtrl = expressAsyncHandler(async (req,res)=>{
+const categoryCtrl = expressAsyncHandler(async (req,res)=>{ 
     try {
         const category =await Category.create({
             user:req?.user?._id,

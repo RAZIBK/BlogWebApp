@@ -5,7 +5,8 @@ import { Navigate } from "react-router-dom";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { createPostAction } from "../../Redux/Slices/posts/postSlice";
-import CatrgoryDropDown from "./CatrgoryDropDown";
+import CatrgoryDropDown from "../Category/CatrgoryDropDown";
+import { useState } from "react";
 
 //Form schema
 const formSchema = Yup.object({
@@ -26,15 +27,16 @@ const Container = styled.div`
   border-style: dashed;
   background-color: #fafafa;
   color: #bdbdbd;
-border-color:'red'
+  border-color:'red'
   transition: border 0.24s ease-in-out;
 `;
 
 export default function CreatePost() {
+  const [show,setShow]=useState(false)
   const dispatch = useDispatch();
 
   //select store data
-  const post = useSelector(state => state?.post);
+  const post = useSelector((state) => state?.post);
   const { isCreated, loading, appErr, serverErr } = post;
   //formik
   const formik = useFormik({
@@ -44,20 +46,21 @@ export default function CreatePost() {
       category: "",
       image: "",
     },
-    onSubmit: values => {
+    onSubmit: (values) => {
       //dispath the action
-      console.log(values);
+      // console.log(values);
       const data = {
-        category: values?.category?.label,
+        category: values?.category?._id,
         title: values?.title,
         description: values?.description,
         image: values?.image,
       };
-      dispatch(createPostAction (data));
+      dispatch(createPostAction(data));
     },
     validationSchema: formSchema,
   });
 
+  
   //redirect
   if (isCreated) return <Navigate to="/posts" />;
   return (
@@ -123,6 +126,18 @@ export default function CreatePost() {
                 error={formik.errors.category}
                 touched={formik.touched.category}
               />
+              {/* {formik.values.category?.label=="CSS" ?
+            (  <input
+              value={formik.values.otherCat}
+              onChange={formik.handleChange("otherCat")}
+              onBlur={formik.handleBlur("otherCat")}
+              id="otherCat"
+              name="otherCat"
+              type="otherCat"
+              autoComplete="otherCat"
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />):null } */}
+            
               <div>
                 <label
                   htmlFor="password"
@@ -143,7 +158,7 @@ export default function CreatePost() {
                 <div className="text-red-500">
                   {formik?.touched?.description && formik.errors?.description}
                 </div>
-                
+
                 {/* Image component */}
                 <label
                   htmlFor="password"
@@ -155,7 +170,7 @@ export default function CreatePost() {
                   <Dropzone
                     onBlur={formik.handleBlur("image")}
                     accept="image/jpeg, image/png"
-                    onDrop={acceptedFiles => {
+                    onDrop={(acceptedFiles) => {
                       formik.setFieldValue("image", acceptedFiles[0]);
                     }}
                   >
@@ -164,7 +179,7 @@ export default function CreatePost() {
                         <div
                           {...getRootProps({
                             className: "dropzone",
-                            onDrop: event => event.stopPropagation(),
+                            onDrop: (event) => event.stopPropagation(),
                           })}
                         >
                           <input {...getInputProps()} />

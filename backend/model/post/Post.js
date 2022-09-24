@@ -7,11 +7,12 @@ const postSchema= new mongoose.Schema({
         trim:true,
     },
     category:{
-        type:String,
-        required:[true,'post category is required'],
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Category',
+        required:[true,"Please Author is required"]
 
     },
-    isLinked:{
+    isLiked:{
         type:Boolean,
         default:false,
     },
@@ -59,7 +60,26 @@ const postSchema= new mongoose.Schema({
     },
     timestamps:true
 
-});
+}); 
+
+// virtual methode to populate 
+postSchema.virtual("Likes", {
+    ref:"Likes",
+    foreignField:"postId",
+    localField:"_id"
+})
+
+postSchema.virtual("Dislike", {
+    ref:"Dislike",
+    foreignField:"postId",
+    localField:"_id"
+})
+
+postSchema.virtual("Comment", {
+    ref:"Comment",
+    foreignField:"postId",
+    localField:"_id"
+  })
 
 
 

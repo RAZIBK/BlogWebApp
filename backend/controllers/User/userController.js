@@ -3,9 +3,13 @@ const expressAsyncHandler = require("express-async-handler");
 const fs= require("fs")
 const {generateAccessToken,refreshToken} = require("../../config/token/generateToken");
 // const {generateAccessToken,refreshToken} = require("../../middlewares/error/auth")
+const Follower = require('../../model/User/followers')
+const Following = require ('../../model/User/Following')
+
 
 const validateMongodbId = require("../../utils/validateMongodbID");
 const cloudinaryUploadImg = require("../../utils/cloudinary");
+const blockedUser = require("../../utils/IsBlocked");
 
 
 
@@ -32,6 +36,7 @@ const userLoginCtrl = expressAsyncHandler(async (req, res) => {
   const userFound = await User.findOne({ email });
 
   if (userFound && (await userFound.isUserPassword(password))) {
+    blockedUser(userFound)
     // const accessToke= generateAccessToken(userFound?._id);
     // const  refreshToke=refreshToken(userFound?._id);
 
@@ -46,7 +51,7 @@ const userLoginCtrl = expressAsyncHandler(async (req, res) => {
       token: generateAccessToken(userFound?._id),
       // refreshToke:refreshToke,
       isAdmin: userFound?.isAdmin,
-      id: userFound?._id,
+      _id: userFound?._id,
     });
   } else {
     res.status(401);
@@ -56,8 +61,8 @@ const userLoginCtrl = expressAsyncHandler(async (req, res) => {
 
 const fetcUsersCtrl = expressAsyncHandler(async (req, res) => {
   try {
-    const users = await User.find({});
-    res.json({token:req.token, users });
+    const users = await User.find({}).populate('posts');
+    res.json(users );
   } catch (error) {
     res.json(error);
   }
@@ -77,16 +82,33 @@ const fetchUserDetailsCtrl = expressAsyncHandler(async (req, res) => {
 const UserProfileCtrl = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
   validateMongodbId(id);
+  const loginUserId=req?.user?._id?.toString()
+
   try {
-    const myProfile = await User.findById(id).populate('posts')
-    res.json({ myProfile });
+    const profile = await User.findById(id).populate('posts')
+    const alreadyViewed=profile?.viewedBy?.find(user=>{
+      return user?._id?.toString()===loginUserId
+    });
+    if (alreadyViewed) {
+      res.json(profile)
+      
+    } else {
+      const profileUpdate=await User.findByIdAndUpdate(profile?._id,{
+        $push:{
+          viewedBy:loginUserId,
+        }
+      })
+    }
+    res.json( profile=profileUpdate );
   } catch (error) {
     res.json(error);
   }
 });
 
 const updateUserCtrl = expressAsyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const user = req.user;
+  blockedUser(user)
+  const {id}=user
   validateMongodbId(id);
   try {
     const user = await User.findByIdAndUpdate(
@@ -208,6 +230,8 @@ const unblockUserCtrl = expressAsyncHandler(async (req,res)=>{
 
 
 const profilePhotoUploadctrl=expressAsyncHandler(async(req,res)=>{
+  const user = req.user;
+  blockedUser(user)
 
   const {_id}=req.user
   const localPath=`public/images/profilePhotos/${req.file.filename}`;

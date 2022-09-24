@@ -3,7 +3,7 @@ import {useFormik} from 'formik'
 import {useDispatch,useSelector} from "react-redux"
 import {Navigate} from 'react-router-dom'
 import * as Yup from 'yup'
-import { registerUserAction } from '../../Redux/Slices/users/userSlices'
+import { registerUserAction } from '../../../Redux/Slices/users/userSlices'
 
 
 

@@ -91,7 +91,7 @@ const UpdateCategory =()=> {
                     aria-hidden="true"
                   />
                 </span>
-                please wait loading..
+                loading please wait..
               </button>
               ):<>
               <button
