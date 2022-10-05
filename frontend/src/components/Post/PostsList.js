@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ThumbUpIcon, ThumbDownIcon, EyeIcon } from "@heroicons/react/solid";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
+  fetchfollowingUserPosts,
   fetchPostAction,
   toggleAddLikeTOPost,
   toggleDisLikeAPost,
@@ -13,9 +14,11 @@ import DateFormatter from "../../utils/dateFormatter";
 
 export default function PostsList() {
   const post = useSelector((state) => state?.post);
-  const { postList, loading, appErr, serverErr, likes, disLike } = post;
+  const { postList, loading, appErr, serverErr, likes, disLike,followingUserPosts } = post;
 
   const category = useSelector((state) => state?.category);
+  // const [postslist,setPostList]=useState([])
+  const [userPost,setPostUser]=useState(false)
   const {
     categoryList,
     loading: catLoading,
@@ -26,10 +29,11 @@ export default function PostsList() {
 
   useEffect(() => {
     dispatch(fetchPostAction(""));
-  }, [dispatch, likes, disLike]);
+  }, [dispatch, likes, disLike,followingUserPosts]);
   useEffect(() => {
     dispatch(fetchCategoriesAction());
   }, [dispatch]);
+
 
   return (
     <>
@@ -66,10 +70,18 @@ export default function PostsList() {
 
                     <li>
                       <p
-                        onClick={() => dispatch(fetchPostAction(""))}
+                        onClick={() => {dispatch(fetchPostAction("")); setPostUser(false)}}
                         className="block cursor-pointer py-2 px-3 mb-4 rounded text-yellow-500 font-bold bg-gray-500"
                       >
                         View All Posts
+                      </p>
+                    </li>
+                    <li>
+                      <p
+                        onClick={() => {dispatch(fetchfollowingUserPosts()); setPostUser(true)}}
+                        className="block cursor-pointer py-2 px-3 mb-4 rounded text-yellow-500 font-bold bg-gray-500"
+                      >
+                        Following User Posts
                       </p>
                     </li>
                     
@@ -87,7 +99,7 @@ export default function PostsList() {
                         <li>
                           <p
                             onClick={() =>
-                              dispatch(fetchPostAction(category?._id))
+                              {dispatch(fetchPostAction(category?._id));setPostUser(false)}
                             }
                             className="block cursor-pointer py-2 px-3 mb-4 rounded text-yellow-500 font-bold bg-gray-500"
                           >
@@ -109,114 +121,220 @@ export default function PostsList() {
                   <h1 className="text-4xl text-gray-300 lg:text-5xl font-bold">
                     No Post Found
                   </h1>
-                ) : (
-                  postList?.map((post) => (
-                    <div
-                      key={post.id}
-                      class="flex flex-wrap bg-gray-900 -mx-3  lg:mb-6"
-                    >
-                      <div class="mb-10  w-full lg:w-1/4">
-                        <Link to={""}>
-                          {/* Post image */}
-                          <img
-                            class="w-full h-full object-cover rounded"
-                            src={post?.image}
-                            alt=""
-                          />
-                        </Link>
-                        {/* Likes, views dislikes */}
-                        <div className="flex flex-row bg-gray-300 justify-center w-full  items-center ">
-                          {/* Likes */}
-                          <div className="flex flex-row justify-center items-center ml-4 mr-4 pb-2 pt-1">
-                            {/* Togle like  */}
-                            <div className="">
-                              <ThumbUpIcon
-                                onClick={() =>
-                                  dispatch(toggleAddLikeTOPost(post?._id))
-                                }
-                                className="h-7 w-7 text-indigo-600 cursor-pointer"
-                              />
-                            </div>
-                            <div className="pl-2 text-gray-600">
-                              {post?.Likes?.length}
-                            </div>
+                ) : (  <div>{userPost ? followingUserPosts?.map((post) => (
+                  <div
+                    key={post.id}
+                    class="flex flex-wrap bg-gray-900 -mx-3  lg:mb-6"
+                  >
+                    <div class="mb-10  w-full lg:w-1/4">
+                      <Link to={""}>
+                        {/* Post image */}
+                        <img
+                          class="w-full h-full object-cover rounded"
+                          src={post?.image}
+                          alt=""
+                        />
+                      </Link>
+                      {/* Likes, views dislikes */}
+                      <div className="flex flex-row bg-gray-300 justify-center w-full  items-center ">
+                        {/* Likes */}
+                        <div className="flex flex-row justify-center items-center ml-4 mr-4 pb-2 pt-1">
+                          {/* Togle like  */}
+                          <div className="">
+                            <ThumbUpIcon
+                              onClick={() =>
+                                dispatch(toggleAddLikeTOPost(post?._id))
+                              }
+                              className="h-7 w-7 text-indigo-600 cursor-pointer"
+                            />
                           </div>
-                          {/* Dislike */}
-                          <div className="flex flex-row  justify-center items-center ml-4 mr-4 pb-2 pt-1">
-                            <div>
-                              <ThumbDownIcon
-                                onClick={() =>
-                                  dispatch(toggleDisLikeAPost(post?._id))
-                                }
-                                className="h-7 w-7 cursor-pointer text-gray-600"
-                              />
-                            </div>
-                            <div className="pl-2 text-gray-600">
-                              {post?.Dislike?.length}
-                            </div>
-                          </div>
-                          {/* Views */}
-                          <div className="flex flex-row justify-center items-center ml-4 mr-4 pb-2 pt-1">
-                            <div>
-                              <EyeIcon className="h-7 w-7  text-gray-400" />
-                            </div>
-                            <div className="pl-2 text-gray-600">
-                              {
-                                post?.numViews
-                               }
-                            </div>
+                          <div className="pl-2 text-gray-600">
+                            {post?.Likes?.length}
                           </div>
                         </div>
-                      </div>
-                      <div class="w-full lg:w-3/4 px-3">
-                        <Link to={""} class="hover:underline">
-                          <h3 class="mb-1 text-2xl text-green-400 font-bold font-heading">
-                            {/* {capitalizeWord(post?.title)} */} {post?.title}
-                          </h3>
-                        </Link>
-                        <p class="text-gray-300">{post.description}</p>
-                        {/* Read more */}
-                        <Link
-                          to={`/posts/${post?._id}`}
-                          className="text-indigo-500 hover:underline"
-                        >
-                          Read More..
-                        </Link>
-                        {/* User Avatar */}
-                        <div className="mt-6 flex items-center">
-                          <div className="flex-shrink-0">
-                            <Link to={""}>
-                              <img
-                                className="h-10 w-10 rounded-full"
-                                src={post?.user?.profilePhoto}
-                                alt=""
-                              />
-                            </Link>
+                        {/* Dislike */}
+                        <div className="flex flex-row  justify-center items-center ml-4 mr-4 pb-2 pt-1">
+                          <div>
+                            <ThumbDownIcon
+                              onClick={() =>
+                                dispatch(toggleDisLikeAPost(post?._id))
+                              }
+                              className="h-7 w-7 cursor-pointer text-gray-600"
+                            />
                           </div>
-                          <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-900">
-                              <Link
-                                to={`/profile/${post?.user?._id}`}
-                                className="text-yellow-400 hover:underline "
-                              >
-                                {post?.user?.name}
-                              </Link>
-                            </p>
-                            <div className="flex space-x-1 text-sm text-green-500">
-                              <time>
-                                <DateFormatter date={post?.createdAt} />
-                              </time>
-                              <span aria-hidden="true">&middot;</span>
-                            </div>
+                          <div className="pl-2 text-gray-600">
+                            {post?.Dislike?.length}
                           </div>
                         </div>
-                        {/* <p class="text-gray-500">
-                          Quisque id sagittis turpis. Nulla sollicitudin rutrum
-                          eros eu dictum...
-                        </p> */}
+                        {/* Views */}
+                        <div className="flex flex-row justify-center items-center ml-4 mr-4 pb-2 pt-1">
+                          <div>
+                            <EyeIcon className="h-7 w-7  text-gray-400" />
+                          </div>
+                          <div className="pl-2 text-gray-600">
+                            {
+                              post?.numViews
+                             }
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  ))
+                    <div class="w-full lg:w-3/4 px-3">
+                      <Link to={""} class="hover:underline">
+                        <h3 class="mb-1 text-2xl text-green-400 font-bold font-heading">
+                          {/* {capitalizeWord(post?.title)} */} {post?.title}
+                        </h3>
+                      </Link>
+                      <p class="text-gray-300">{post.description}</p>
+                      {/* Read more */}
+                      <Link
+                        to={`/posts/${post?._id}`}
+                        className="text-indigo-500 hover:underline"
+                      >
+                        Read More..
+                      </Link>
+                      {/* User Avatar */}
+                      <div className="mt-6 flex items-center">
+                        <div className="flex-shrink-0">
+                          <Link to={""}>
+                            <img
+                              className="h-10 w-10 rounded-full"
+                              src={post?.user?.profilePhoto}
+                              alt=""
+                            />
+                          </Link>
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-gray-900">
+                            <Link
+                              to={`/profile/${post?.user?._id}`}
+                              className="text-yellow-400 hover:underline "
+                            >
+                              {post?.user?.name}
+                            </Link>
+                          </p>
+                          <div className="flex space-x-1 text-sm text-green-500">
+                            <time>
+                              <DateFormatter date={post?.createdAt} />
+                            </time>
+                            <span aria-hidden="true">&middot;</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* <p class="text-gray-500">
+                        Quisque id sagittis turpis. Nulla sollicitudin rutrum
+                        eros eu dictum...
+                      </p> */}
+                    </div>
+                  </div>
+                )):postList?.map((post) => (
+                  <div
+                    key={post.id}
+                    class="flex flex-wrap bg-gray-900 -mx-3  lg:mb-6"
+                  >
+                    <div class="mb-10  w-full lg:w-1/4">
+                      <Link to={""}>
+                        {/* Post image */}
+                        <img
+                          class="w-full h-full object-cover rounded"
+                          src={post?.image}
+                          alt=""
+                        />
+                      </Link>
+                      {/* Likes, views dislikes */}
+                      <div className="flex flex-row bg-gray-300 justify-center w-full  items-center ">
+                        {/* Likes */}
+                        <div className="flex flex-row justify-center items-center ml-4 mr-4 pb-2 pt-1">
+                          {/* Togle like  */}
+                          <div className="">
+                            <ThumbUpIcon
+                              onClick={() =>
+                                dispatch(toggleAddLikeTOPost(post?._id))
+                              }
+                              className="h-7 w-7 text-indigo-600 cursor-pointer"
+                            />
+                          </div>
+                          <div className="pl-2 text-gray-600">
+                            {post?.Likes?.length}
+                          </div>
+                        </div>
+                        {/* Dislike */}
+                        <div className="flex flex-row  justify-center items-center ml-4 mr-4 pb-2 pt-1">
+                          <div>
+                            <ThumbDownIcon
+                              onClick={() =>
+                                dispatch(toggleDisLikeAPost(post?._id))
+                              }
+                              className="h-7 w-7 cursor-pointer text-gray-600"
+                            />
+                          </div>
+                          <div className="pl-2 text-gray-600">
+                            {post?.Dislike?.length}
+                          </div>
+                        </div>
+                        {/* Views */}
+                        <div className="flex flex-row justify-center items-center ml-4 mr-4 pb-2 pt-1">
+                          <div>
+                            <EyeIcon className="h-7 w-7  text-gray-400" />
+                          </div>
+                          <div className="pl-2 text-gray-600">
+                            {
+                              post?.numViews
+                             }
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="w-full lg:w-3/4 px-3">
+                      <Link to={""} class="hover:underline">
+                        <h3 class="mb-1 text-2xl text-green-400 font-bold font-heading">
+                          {/* {capitalizeWord(post?.title)} */} {post?.title}
+                        </h3>
+                      </Link>
+                      <p class="text-gray-300">{post.description}</p>
+                      {/* Read more */}
+                      <Link
+                        to={`/posts/${post?._id}`}
+                        className="text-indigo-500 hover:underline"
+                      >
+                        Read More..
+                      </Link>
+                      {/* User Avatar */}
+                      <div className="mt-6 flex items-center">
+                        <div className="flex-shrink-0">
+                          <Link to={""}>
+                            <img
+                              className="h-10 w-10 rounded-full"
+                              src={post?.user?.profilePhoto}
+                              alt=""
+                            />
+                          </Link>
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-gray-900">
+                            <Link
+                              to={`/profile/${post?.user?._id}`}
+                              className="text-yellow-400 hover:underline "
+                            >
+                              {post?.user?.name}
+                            </Link>
+                          </p>
+                          <div className="flex space-x-1 text-sm text-green-500">
+                            <time>
+                              <DateFormatter date={post?.createdAt} />
+                            </time>
+                            <span aria-hidden="true">&middot;</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* <p class="text-gray-500">
+                        Quisque id sagittis turpis. Nulla sollicitudin rutrum
+                        eros eu dictum...
+                      </p> */}
+                    </div>
+                  </div>
+                ))}
+                  </div>
                 )}
               </div>
             </div>

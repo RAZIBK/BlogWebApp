@@ -10,6 +10,7 @@ const Following = require ('../../model/User/Following')
 const validateMongodbId = require("../../utils/validateMongodbID");
 const cloudinaryUploadImg = require("../../utils/cloudinary");
 const blockedUser = require("../../utils/IsBlocked");
+const { findById } = require("../../model/User/userModel");
 
 
 
@@ -43,16 +44,20 @@ const userLoginCtrl = expressAsyncHandler(async (req, res) => {
     // const user =await User.findByIdAndUpdate(userFound?._id,{
     //   refreshToken:refreshToke
     // },{new:true});
-
+// console.log(userFound.populate(following));
+    const user=await User.findById(userFound._id).populate("following").populate("followers")
+  
     res.json({
       name: userFound?.name,
       email: userFound?.email,
       profilePhoto: userFound?.profilePhoto,
       token: generateAccessToken(userFound?._id),
       // refreshToke:refreshToke,
+      followers:user.followers,
+      following:user.following,
       isAdmin: userFound?.isAdmin,
       _id: userFound?._id,
-    });
+    }); 
   } else {
     res.status(401);
     throw new Error("Your username or password is incorrect");
@@ -68,6 +73,23 @@ const fetcUsersCtrl = expressAsyncHandler(async (req, res) => {
   }
 });
 
+const fetcSerchUsersCtrl = expressAsyncHandler(async (req, res) => {
+  try {
+    let value=req.query.search
+    const keyWord=value?{
+      $or:[ 
+        {"name":{$regex:value,$options:'i'}},
+        {"email":{$regex:value,$options:'i'}},
+      ], 
+    }:{};
+    const users = await User.find(keyWord).find({_id:{$ne:req?.user?._id}}).populate('posts');
+    res.json(users );
+  } catch (error) {
+    res.json(error);
+  }
+});
+
+
 const fetchUserDetailsCtrl = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
   validateMongodbId(id);
@@ -80,12 +102,13 @@ const fetchUserDetailsCtrl = expressAsyncHandler(async (req, res) => {
 });
 
 const UserProfileCtrl = expressAsyncHandler(async (req, res) => {
+  console.log("f;ewo");
   const { id } = req.params;
   validateMongodbId(id);
   const loginUserId=req?.user?._id?.toString()
 
   try {
-    const profile = await User.findById(id).populate('posts')
+    const profile = await User.findById(id).populate('posts').populate("following").populate("followers")
     const alreadyViewed=profile?.viewedBy?.find(user=>{
       return user?._id?.toString()===loginUserId
     });
@@ -202,6 +225,7 @@ const unFollowUserctrl = expressAsyncHandler(async(req,res)=>{
 
 
 const blockUserCtrl =expressAsyncHandler(async(req,res)=>{
+  
     const {id} = req.params;
     validateMongodbId(id);
 
@@ -265,5 +289,6 @@ module.exports = {
   blockUserCtrl,
   unblockUserCtrl,
   profilePhotoUploadctrl,
+  fetcSerchUsersCtrl
   
 };

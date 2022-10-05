@@ -25,7 +25,7 @@ const PostDetails = () => {
   const user = useSelector((state) => state?.users);
   const _id = user?.userAuth?._id;
   // const {userAuth:{_id},}=user;
-  const isCreatedBy = PostDetails?.user?._id === _id;
+  const isCreatedBy = PostDetails?.user?._id === _id || user?.userAuth.isAdmin===true;
 
   //  console.log(PostDetails?.Comment);
   if (isDeleted) return <Navigate to={"/posts/"} />;

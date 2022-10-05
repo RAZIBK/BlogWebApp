@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../../model/User/userModel");
 
 const authmidlewarres = expressAsyncHandler(async (req, res, next) => {
+
   let token;
   if (req?.headers?.authorization?.startsWith("Bearer")) {
     try {

@@ -67,7 +67,7 @@ postSchema.virtual("Likes", {
     ref:"Likes",
     foreignField:"postId",
     localField:"_id"
-})
+}) 
 
 postSchema.virtual("Dislike", {
     ref:"Dislike",

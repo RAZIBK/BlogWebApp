@@ -9,8 +9,13 @@ import {
   BookOpenIcon,
 } from "@heroicons/react/outline";
 import { PlusIcon, LogoutIcon } from "@heroicons/react/solid";
-import {useDispatch} from 'react-redux'
+import { useDispatch } from "react-redux";
 import { logoutUserAction } from "../../../Redux/Slices/users/userSlices";
+import { ChatState } from "../../../context/ChatContext";
+import SearchBar from "../../User/UsersSearch/SearchBar";
+
+import BookData from "../../User/UsersSearch/Data.json";
+
 
 const navigation = [
   { name: "Home", href: "/", current: true },
@@ -24,11 +29,13 @@ function classNames(...classes) {
 }
 
 const PrivateNavbar = ({ isLogin }) => {
+  const { notification } = ChatState();
+
   const userNavigation = [
     { name: "Your Profile", href: `/profile/${isLogin?._id}` },
     { name: "Change your password", href: "/update-password" },
   ];
-const dispatch=useDispatch()
+  const dispatch = useDispatch();
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -49,10 +56,10 @@ const dispatch=useDispatch()
                 </div>
                 <div className="flex-shrink-0 flex items-center">
                   {/* Logo */}
-                  <BookOpenIcon className="h-10 w-10 text-yellow-200" />
+                  <BookOpenIcon className="h-10 w-10 text-gray-200" />
                 </div>
                 <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-                  {navigation.map(item => (
+                  {navigation.map((item) => (
                     <Link
                       key={item.name}
                       to={item.href}
@@ -67,13 +74,31 @@ const dispatch=useDispatch()
                       {item.name}
                     </Link>
                   ))}
+                  <Link
+                    key="Chat"
+                    to="/chat"
+                    className="text-gray-300 hover:bg-gray-700 hover:text-white"
+                    aria-current="page"
+                  >
+                    Chat{" "}
+                    
+                    {notification.length > 0 ? (
+                      <span class="inline-block py-1 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-green-600 text-white rounded ">
+                        {notification.length}
+                      </span>
+                    ) : null}
+                  </Link>
+                 
                 </div>
+                
               </div>
+              {/* <div><SearchBar placeholder="Enter a Book Name..." data={BookData} /></div> */}
               <div className="flex items-center">
                 <div className="flex-shrink-0 ">
+                  
                   <Link
                     to="/create-post"
-                    className="pr-3  relative inline-flex items-center mr-2 px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500"
+                    className="pr-3  relative inline-flex items-center mr-2 px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white border-gray-200 hover:bg-gray-200 hover:text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500"
                   >
                     <PlusIcon
                       className="-ml-1 mr-2 h-5 w-5"
@@ -82,17 +107,7 @@ const dispatch=useDispatch()
                     <span>New Post</span>
                   </Link>
 
-                  <button
-                    onClick={()=>dispatch(logoutUserAction())}
-                    type="button"
-                    className="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500"
-                  >
-                    <LogoutIcon
-                      className="-ml-1 mr-2 h-5 w-5"
-                      aria-hidden="true"
-                    />
-                    <span>Logout</span>
-                  </button>
+                  
                 </div>
                 <div className="hidden md:ml-4 md:flex-shrink-0 md:flex md:items-center">
                   {/* Profile dropdown */}
@@ -123,7 +138,7 @@ const dispatch=useDispatch()
                             static
                             className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
                           >
-                            {userNavigation.map(item => (
+                            {userNavigation.map((item) => (
                               <Menu.Item key={item.name}>
                                 {({ active }) => (
                                   <a
@@ -138,11 +153,23 @@ const dispatch=useDispatch()
                                 )}
                               </Menu.Item>
                             ))}
+                            <div
+                    onClick={() => dispatch(logoutUserAction())}
+                    type="button"
+                    className=" hover:bg-gray-100 block px-4 py-2 text-sm text-gray-700 overflow-auto border-t-2 border-black"
+                  >
+                    
+                    <span> Logout</span>
+                  </div>
                           </Menu.Items>
                         </Transition>
                       </>
                     )}
                   </Menu>
+                  
+                </div>
+                <div>
+                  
                 </div>
               </div>
             </div>
@@ -150,7 +177,7 @@ const dispatch=useDispatch()
 
           <Disclosure.Panel className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              {navigation.map(item => (
+              {navigation.map((item) => (
                 <a
                   key={item.name}
                   href={item.href}
@@ -190,7 +217,7 @@ const dispatch=useDispatch()
                 </button>
               </div>
               <div className="mt-3 px-2 space-y-1 sm:px-3">
-                {userNavigation.map(item => (
+                {userNavigation.map((item) => (
                   <a
                     key={item.name}
                     href={item.href}

@@ -9,7 +9,6 @@ const Dislike = require("../../model/post/DisLike");
 const Likes = require("../../model/post/like");
 
 const createPostCtrl = expressAsyncHandler(async (req, res) => {
-  console.log(req.body);
   const { _id } = req.user;
   // validateMongodbId(req.body.user );
   const filter = new Filter();
@@ -22,7 +21,6 @@ const createPostCtrl = expressAsyncHandler(async (req, res) => {
       "Create failed because it contains profane words and you have been blocked"
     );
   }
-  // console.log(req.file);
   const localPath = `public/images/post/${req.file.filename}`;
   const imaggeUpload = await cloudinaryUploadImg(localPath);
   try {
@@ -47,7 +45,8 @@ const fetchPostCtrl = expressAsyncHandler(async (req, res) => {
         .populate("Likes")
         .populate("Dislike")
         .populate("category")
-        .sort('-createdAt');
+        .populate("Comment")
+        .sort("-createdAt");
 
       res.json(posts);
     } else {
@@ -56,7 +55,9 @@ const fetchPostCtrl = expressAsyncHandler(async (req, res) => {
         .populate("Likes")
         .populate("Dislike")
         .populate("category")
-        .sort('-createdAt');
+        .populate("category")
+        .populate("Comment")
+        .sort("-createdAt");
       res.json(posts);
     }
   } catch (error) {
@@ -178,6 +179,22 @@ const toggleAddDislikeToPostCtrl = expressAsyncHandler(async (req, res) => {
   }
 });
 
+const followersPosts = expressAsyncHandler(async (req, res) => {
+  const followers = req?.user?.following;
+  try {
+    const followedUserPost = await Post.find({ user: { $in: followers } })
+      .populate("user")
+      .populate("Likes")
+      .populate("Dislike")
+      .populate("category")
+      .sort("-createdAt");
+
+    res.json(followedUserPost);
+  } catch (error) {
+    res.json(error);
+  }
+});
+
 module.exports = {
   createPostCtrl,
   fetchPostCtrl,
@@ -186,4 +203,5 @@ module.exports = {
   deletePostCtrl,
   toggleAddlikeToPostCtrl,
   toggleAddDislikeToPostCtrl,
+  followersPosts,
 };

@@ -6,7 +6,8 @@ const {
   postUpdateCtrl,
   deletePostCtrl,
   toggleAddlikeToPostCtrl,
-  toggleAddDislikeToPostCtrl
+  toggleAddDislikeToPostCtrl,
+  followersPosts,
 } = require("../../controllers/Post/postController");
 const authmidlewarres = require("../../middlewares/error/auth");
 const {
@@ -22,13 +23,12 @@ postRoutes.post(
   postPhotoResize,
   createPostCtrl
 );
-postRoutes.put('/likes',authmidlewarres,toggleAddlikeToPostCtrl)
-postRoutes.put('/dislike',authmidlewarres,toggleAddDislikeToPostCtrl)
+postRoutes.put("/likes", authmidlewarres, toggleAddlikeToPostCtrl);
+postRoutes.put("/dislike", authmidlewarres, toggleAddDislikeToPostCtrl);
+postRoutes.get("/followersPosts", authmidlewarres, followersPosts);
 postRoutes.get("/", fetchPostCtrl);
-postRoutes.get('/:id',fetchSinglePostCtrl)
-postRoutes.put('/:id', authmidlewarres,postUpdateCtrl)
-postRoutes.delete('/:id',authmidlewarres,deletePostCtrl)
-
-
+postRoutes.get("/:id", fetchSinglePostCtrl);
+postRoutes.put("/:id", authmidlewarres, postUpdateCtrl);
+postRoutes.delete("/:id", authmidlewarres, deletePostCtrl);
 
 module.exports = postRoutes;

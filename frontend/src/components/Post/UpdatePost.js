@@ -1,19 +1,36 @@
 import React, { useEffect } from "react";
 import { useFormik } from "formik";
-import {  useParams,Navigate } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import CatrgoryDropDown from "../Category/CatrgoryDropDown";
-import { fetchPostDetails, updatePostAction } from "../../Redux/Slices/posts/postSlice";
-
+import {
+  fetchPostDetails,
+  updatePostAction,
+} from "../../Redux/Slices/posts/postSlice";
+import styled from "styled-components";
+import Dropzone from "react-dropzone";
 
 import * as Yup from "yup";
-
 const formSchema = Yup.object({
   title: Yup.string().required("Title is required"),
   description: Yup.string().required("Description is required"),
   category: Yup.object().required("Category is required"),
 });
 
+const Container = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border-width: 2px;
+  border-radius: 2px;
+  border-style: dashed;
+  background-color: #fafafa;
+  color: #bdbdbd;
+  border-color:'red'
+  transition: border 0.24s ease-in-out;
+`;
 export default function UpdatePost() {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -22,15 +39,15 @@ export default function UpdatePost() {
     dispatch(fetchPostDetails(id));
   }, [id, dispatch]);
   const state = useSelector((state) => state?.post);
-  const {PostDetails } = state;
-// console.log(PostDetails?.category);
+  const { PostDetails } = state;
+  // console.log(PostDetails?.category);
   const formik = useFormik({
-    enableReinitialize:true,
+    enableReinitialize: true,
     initialValues: {
       title: PostDetails?.title,
       description: PostDetails?.description,
       category: PostDetails?.category,
-    //   image: "",
+      //   image: "",
     },
     onSubmit: (values) => {
       //dispath the action
@@ -45,11 +62,10 @@ export default function UpdatePost() {
     validationSchema: formSchema,
   });
 
-  const postUpdate=useSelector((state)=>state?.post);
-  const {loading, appErr, serverErr,postUpdated,isupdatad}=postUpdate;
+  const postUpdate = useSelector((state) => state?.post);
+  const { loading, appErr, serverErr, postUpdated, isupdatad } = postUpdate;
 
-  if(isupdatad)return <Navigate to={`/posts/${id}`}/>
-
+  if (isupdatad) return <Navigate to={`/posts/${id}`} />;
 
   return (
     <>
@@ -59,7 +75,12 @@ export default function UpdatePost() {
             Are you sure you want to edit{" "}
             <span className="text-indigo-500 ">{PostDetails?.title}</span>
           </h2>
-          {appErr||serverErr ? <h2 className="text-red-500 text-center">{appErr}{serverErr}</h2>:null}
+          {appErr || serverErr ? (
+            <h2 className="text-red-500 text-center">
+              {appErr}
+              {serverErr}
+            </h2>
+          ) : null}
         </div>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -115,23 +136,59 @@ export default function UpdatePost() {
                 <div className="text-red-500">
                   {formik.touched.description && formik.errors.description}
                 </div>
+                {/* <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mt-3 mb-2 text-gray-700"
+                >
+                  Select image to upload
+                </label>
+                <Container className="container bg-gray-700">
+                  <Dropzone
+                    onBlur={formik.handleBlur("image")}
+                    accept="image/jpeg, image/png"
+                    onDrop={(acceptedFiles) => {
+                      formik.setFieldValue("image", acceptedFiles[0]);
+                    }}
+                  >
+                    {({ getRootProps, getInputProps }) => (
+                      <div className="container">
+                        <div
+                          {...getRootProps({
+                            className: "dropzone",
+                            onDrop: (event) => event.stopPropagation(),
+                          })}
+                        >
+                          <input {...getInputProps()} />
+                          <p className="text-gray-300 text-lg cursor-pointer hover:text-gray-500">
+                            Click here to select image
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </Dropzone>
+                </Container> */}
+                {/* Err msg */}
+                <div className="text-red-500">
+                  {formik?.touched?.image && formik.errors?.image}
+                </div>
               </div>
 
               <div>
-                {loading? (
-                <button
-                  disabled
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  loading please wait..
-                </button>
-
-                ):(<button
-                  type="submit"
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Update
-                </button>)}
+                {loading ? (
+                  <button
+                    disabled
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    loading please wait..
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Update
+                  </button>
+                )}
               </div>
             </form>
           </div>

@@ -146,7 +146,6 @@ export const toggleAddLikeTOPost = createAsyncThunk(
 export const toggleDisLikeAPost = createAsyncThunk(
   "post/disLike",
   async (postId, { rejectWithValue, getState, dispatch }) => {
-    console.log(postId);
     const user = getState()?.users;
     const { userAuth } = user;
     const config = {
@@ -175,6 +174,28 @@ export const fetchPostDetails = createAsyncThunk(
   async (id, { rejectWithValue, getState, dispatch }) => {
     try {
       const { data } = await axios.get(`${baseUrl}/api/post/${id}`);
+      return data;
+    } catch (error) {
+      if (!error?.response) {
+        throw error;
+      }
+      return rejectWithValue(error?.response?.data);
+    }
+  }
+);
+
+export const fetchfollowingUserPosts = createAsyncThunk(
+  "post/followingUser-post",
+  async (id, { rejectWithValue, getState, dispatch }) => {
+    const user = getState()?.users;
+    const { userAuth } = user;
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userAuth?.token}`,
+      },
+    };
+    try {
+      const { data } = await axios.get(`${baseUrl}/api/post/followersPosts`,config);
       return data;
     } catch (error) {
       if (!error?.response) {
@@ -304,6 +325,23 @@ const postSlices = createSlice({
       state.serverErr = undefined;
     });
     builder.addCase(fetchPostDetails.rejected, (state, action) => {
+      state.loading = false;
+      state.appErr = action?.payload?.message;
+      state.serverErr = action?.error?.message;
+    });
+
+    
+    builder.addCase(fetchfollowingUserPosts.pending, (state, action) => {
+      state.loading = true;
+    });
+
+    builder.addCase(fetchfollowingUserPosts.fulfilled, (state, action) => {
+      state.loading = false;
+      state.followingUserPosts = action?.payload;
+      state.appErr = undefined;
+      state.serverErr = undefined;
+    });
+    builder.addCase(fetchfollowingUserPosts.rejected, (state, action) => {
       state.loading = false;
       state.appErr = action?.payload?.message;
       state.serverErr = action?.error?.message;

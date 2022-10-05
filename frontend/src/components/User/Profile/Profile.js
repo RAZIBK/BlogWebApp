@@ -16,9 +16,16 @@ import {
 } from "../../../Redux/Slices/users/userSlices";
 import DateFormatter from "../../../utils/dateFormatter";
 import UploadProfilePhoto from "./UploadProfilePhoto";
+import FollowersList from "../FollowersList/FollowersList";
+import Following from "../FollowersList/Following";
 
 export default function Profile() {
   const [showModal, setShowModal] = useState(false);
+  const [showFolloingwModal, setFollowingShowModal] = useState(false);
+  const [showFollowerswModal, setFollowersShowModal] = useState(false);
+
+
+  
   const [follow, setfollow] = useState(false);
 
   const { id } = useParams();
@@ -44,13 +51,21 @@ export default function Profile() {
 
   const iSLoginUser = userAuth?._id === profile?._id;
 
+
+  // console.log(userAuth?._id);
+  // console.log(profile?.followers);
+
+  // console.log(profile?.followers?.includes(userAuth?._id));
+  // console.log(profile?.followers?.filter(e => e._id === "fhsghu"));
+  // console.log(profile?.followers?.some(e => e._id === userAuth?._id));
+
   // console.log(id);
   // console.log(userAuth);
   // console.log(userAuth?.following.includes(id));
 
   return (
     <container>
-      <div className="h-screen flex overflow-hidden bg-white">
+      <div className=" flex overflow-hidden bg-white">
         {/* Static sidebar for desktop */}
 
         <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
@@ -107,7 +122,7 @@ export default function Profile() {
                             </span>
                           ) : (
                             <span>
-                              {profile?.followers?.includes(userAuth?._id) ? (
+                              {profile?.followers?.some(e => e._id === userAuth?._id) ? (
                                 <button
                                   onClick={() =>
                                     dispatch(unFollowUser(profile?._id))
@@ -148,16 +163,16 @@ export default function Profile() {
                           </p>
                           <p className="text-gray-900 mt-2  mb-2 ml-3">
                             {profile?.posts?.length} posts{" "}
-                            <Link to={"/"}>
+                            <button onClick={()=>setFollowersShowModal(true)}>
                               <span className="ml-5 text-bold">
                                 {profile?.followers.length} followers{" "}
                               </span>
-                            </Link>
-                            <Link to={"/"}>
+                            </button>
+                            <button onClick={() => setFollowingShowModal(true)}>
                               <span className="ml-5">
                                 {profile?.following.length} following{" "}
                               </span>
-                            </Link>
+                            </button>
                           </p>
                           {/* Who view my profile */}
                           {/* <div className="flex items-center  mb-2">
@@ -168,8 +183,24 @@ export default function Profile() {
                                 users viewed your profile
                               </span>
                             </div>
+                            
                           </div> */}
+                          <FollowersList
+                  visible={showFollowerswModal}
+                  onClose={() => setFollowersShowModal(false)}
+                  Following={profile?.followers}
+                  followers={profile?.followers}
 
+                  userAuth={userAuth}
+                   />
+                  <Following
+                  visible={showFolloingwModal}
+                  onClose={() => setFollowingShowModal(false)}
+                  Following={profile?.following}
+                  followers={profile?.followers}
+                  userAuth={userAuth}
+
+                   />
                           <div className="pl-2 mb-4 ml-1">
                             {/* {profile?.viewedBy?.length}{" "} */}
                             <span className="text-gray-600  cursor-pointer hover:underline">

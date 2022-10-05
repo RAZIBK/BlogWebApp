@@ -1,16 +1,23 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { ChatState } from "../../../context/ChatContext";
 
 import { Link } from "react-router-dom";
-import {BellIcon,MenuIcon,XIcon,BookOpenIcon,LogoutIcon} from "@heroicons/react/outline";
+import {
+  BellIcon,
+  MenuIcon,
+  XIcon,
+  BookOpenIcon,
+  LogoutIcon,
+} from "@heroicons/react/outline";
 import { PlusIcon } from "@heroicons/react/solid";
-import {useDispatch} from 'react-redux'
+import { useDispatch } from "react-redux";
 import { logoutUserAction } from "../../../Redux/Slices/users/userSlices";
 
 const navigation = [
   { name: "Home", href: "/", current: true },
-  { name: "Create", href: "/create-post", current: false },
+  // { name: "Create", href: "/create-post", current: false },
   { name: "Posts", href: "/posts", current: false },
   { name: "Authors", href: "/users", current: false },
   { name: "Add Category", href: "/add-category", current: false },
@@ -21,16 +28,18 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const AdminNavbar = ({isLogin}) => {
-    const dispatch=useDispatch()
+const AdminNavbar = ({ isLogin }) => {
+  const dispatch = useDispatch();
   //Navigation
+
+  const { notification } = ChatState();
   const userNavigation = [
     { name: "Your Profile", href: `/profile/${isLogin?._id}` },
     { name: "Change your password", href: "/update-password" },
   ];
 
   return (
-    <Disclosure as="nav" className="bg-green-800">
+    <Disclosure as="nav" className="bg-gray-700">
       {({ open }) => (
         <>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,12 +56,13 @@ const AdminNavbar = ({isLogin}) => {
                     )}
                   </Disclosure.Button>
                 </div>
-                <div className="flex-shrink-0 flex items-center">
+                <div className="flex-shrink-0  relative mr-4 inline-flex items-center px-2   border border-transparent  text-sm font-medium rounded-md text-white border-gray-200 h-10 mt-3 ">
                   {/* Logo */}
-                  <BookOpenIcon className="h-10 w-10 text-yellow-200" />
+                  <BookOpenIcon className="h-10 w-10 text-gray-200" />
+                  <span className="ml-3 text-gray-100">Hi  Admin</span>
                 </div>
                 <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-                  {navigation.map(item => (
+                  {navigation.map((item) => (
                     <Link
                       key={item.name}
                       to={item.href}
@@ -67,24 +77,38 @@ const AdminNavbar = ({isLogin}) => {
                       {item.name}
                     </Link>
                   ))}
+                  <Link
+                    key="Chat"
+                    to="/chat"
+                    className="text-gray-300 hover:bg-gray-700 hover:text-white"
+                    aria-current="page"
+                  >
+                    Chat{" "}
+                    
+                    {notification.length > 0 ? (
+                      <span class="inline-block py-1 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-green-600 text-white rounded ">
+                        {notification.length}
+                      </span>
+                    ) : null}
+                  </Link>
                 </div>
               </div>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   {/* New post */}
-                  {/* <Link
+                  <Link
                     to="/create-post"
                     type="button"
-                    className="relative mr-4 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500"
+                    className="relative mr-4 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white border-gray-200 hover:bg-gray-200 hover:text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 "
                   >
                     <PlusIcon
                       className="-ml-1 mr-2 h-5 w-5"
                       aria-hidden="true"
                     />
                     <span>New Post</span>
-                  </Link> */}
+                  </Link>
                   {/* Logout */}
-                  <button
+                  {/* <button
                    onClick={()=>dispatch(logoutUserAction())}
                     type="button"
                     className="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500"
@@ -94,7 +118,7 @@ const AdminNavbar = ({isLogin}) => {
                       aria-hidden="true"
                     />
                     <span>Logout</span>
-                  </button>
+                  </button> */}
                 </div>
                 <div className="hidden md:ml-4 md:flex-shrink-0 md:flex md:items-center">
                   {/* Profile dropdown */}
@@ -125,7 +149,7 @@ const AdminNavbar = ({isLogin}) => {
                             static
                             className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
                           >
-                            {userNavigation.map(item => (
+                            {userNavigation.map((item) => (
                               <Menu.Item key={item.name}>
                                 {({ active }) => (
                                   <a
@@ -140,6 +164,13 @@ const AdminNavbar = ({isLogin}) => {
                                 )}
                               </Menu.Item>
                             ))}
+                            <div
+                              onClick={() => dispatch(logoutUserAction())}
+                              type="button"
+                              className=" hover:bg-gray-100 block px-4 py-2 text-sm text-gray-700 overflow-auto border-t-2 border-black"
+                            >
+                              <span> Logout</span>
+                            </div>
                           </Menu.Items>
                         </Transition>
                       </>
@@ -152,7 +183,7 @@ const AdminNavbar = ({isLogin}) => {
 
           <Disclosure.Panel className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              {navigation.map(item => (
+              {navigation.map((item) => (
                 <Link
                   to={`${item.href}`}
                   key={item.name}
@@ -172,7 +203,11 @@ const AdminNavbar = ({isLogin}) => {
               <div className="flex items-center px-5 sm:px-6">
                 <div className="flex-shrink-0">
                   {/* Image */}
-                  <img className="h-10 w-10 rounded-full" src={isLogin?.profilePhoto} alt="" />
+                  <img
+                    className="h-10 w-10 rounded-full"
+                    src={isLogin?.profilePhoto}
+                    alt=""
+                  />
                 </div>
                 <div className="ml-3">
                   <div className="text-base font-medium text-white">
@@ -188,7 +223,7 @@ const AdminNavbar = ({isLogin}) => {
                 </button>
               </div>
               <div className="mt-3 px-2 space-y-1 sm:px-3">
-                {userNavigation.map(item => (
+                {userNavigation.map((item) => (
                   <a
                     key={item.name}
                     href={item.href}

@@ -1,4 +1,7 @@
 import {BrowserRouter,Routes,Route} from 'react-router-dom';
+// import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import AddNewCategory from './components/Category/AddNewCategory';
 import ListAllCategory from './components/Category/ListAllCategory';
 import UpdateCategory from './components/Category/UpdateCategory';
@@ -16,12 +19,17 @@ import Register from './components/User/Register/Register';
 import Profile from './components/User/Profile/Profile'
 import UpdateProfileForm from './components/User/Profile/UpdateProfileForm';
 import UsersList from './components/User/UsersList/UsersList';
+import Chat from './components/Chat/Chat';
+
+import Search from './components/User/UsersSearch/Search';
+
 
 
 
 
 function App() {
   return (
+    <>
    <BrowserRouter >
    <Navbar/>
    <Routes>
@@ -34,6 +42,8 @@ function App() {
 
     <Route exact path="/Profile/:id" element={<PrivateProtectedRoute><Profile/></PrivateProtectedRoute>}/>
 
+    <Route exact path='/chat' element={<PrivateProtectedRoute><Chat/></PrivateProtectedRoute>}/>
+
 
     <Route exact path='/posts' element={<PostsList/>}/>
     <Route exact path='/posts/:id' element={<PostDetails/>}/>
@@ -43,12 +53,17 @@ function App() {
     <Route exact path="/update-category/:id" element={<AdminRoute><UpdateCategory/></AdminRoute>}/>
     <Route exact path='/users' element={<AdminRoute><UsersList/></AdminRoute>}/>
 
+    <Route exact path='/table' element={<Search/>}/>
+
+
 
 
    </Routes>
 
 
    </BrowserRouter>
+   {/* <ToastContainer/> */}
+   </>
   )
 }
 
